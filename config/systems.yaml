@@ -1,0 +1,57 @@
+# =============================================================================
+# The study matrix: 3 lipids x 3 protonation levels = 9 systems,
+# each run as `replicas` independent copies = 27 runs.
+#
+# System names are "<LIPID>_p<percent>", e.g. MC3_p050.
+# Run directories are runs/<system>/rep<N>/.
+# =============================================================================
+
+lipids: [ECO, MC3, SM102]
+
+# Fraction of ALL ionizable amines in the system that carry a proton.
+# Defined per amine (not per molecule) so the definition is the same for a
+# one-amine lipid (MC3, SM-102) and a two-amine lipid (ECO).
+#   0.0 ~ pH 7.4   0.5 ~ pH 6.5   1.0 ~ pH 5.0
+# How protons are distributed over molecules: as evenly as possible; any
+# remainder goes to randomly chosen molecules (fixed seed). Consequences:
+#   ECO  at 0.5 -> every molecule +1
+#   MC3  at 0.5 -> half the molecules +1, half neutral (random, seeded)
+# See src/lipidmd/protonation.py and tests/test_protonation.py.
+protonation_levels: [0.0, 0.5, 1.0]
+approx_ph: {0.0: 7.4, 0.5: 6.5, 1.0: 5.0}   # labels only; nothing is computed from pH
+
+n_molecules: 64        # ionizable lipids in the aggregate
+replicas: 3
+
+seeds:
+  # Chooses WHICH molecules are protonated when not all of them are.
+  protonation: 20260918
+  # Initial velocities, one seed per replica (list length must equal `replicas`).
+  velocities: [1101, 2202, 3303]
+  # Where gmx genion puts the ions.
+  ions: 4404
+
+# What makes replica 2 different from replica 1?
+#   "velocities"             -> same starting structure and same protonated
+#                               molecules; only initial velocities differ.
+#   "velocities+protonation" -> additionally a different random choice of
+#                               which molecules are protonated (only matters
+#                               for MC3/SM-102 at 50%).
+replica_variation: null   # ASK
+
+aggregate:
+  # Pre-equilibrated aggregate of `n_molecules` NEUTRAL lipids (the build step
+  # adds the protons). How this aggregate is produced is still open -- see
+  # DECISIONS.md "Open questions".
+  file: "inputs/aggregates/{lipid}_aggregate.pdb"
+  # Vertical gap between the upper leaflet's mean phosphorus plane and the
+  # LOWEST atom of the aggregate at t=0.
+  gap_nm: null              # ASK
+  # Water added above the aggregate top AND below the lower leaflet's
+  # phosphorus plane. Through periodic boundaries these two layers join, so
+  # the aggregate sees 2x this much water before the membrane's periodic image.
+  water_padding_nm: null    # ASK
+
+runs_dir: runs
+smoke_runs_dir: runs_smoke
+results_dir: results

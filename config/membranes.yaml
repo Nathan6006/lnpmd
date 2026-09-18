@@ -1,0 +1,38 @@
+# =============================================================================
+# Target membranes.
+#
+# THE ONE LINE TO CHANGE: `target` picks which membrane every system is built
+# with. Switch to `popc` to run the pure-POPC control set.
+# =============================================================================
+
+target: popc_pops_chol
+
+membranes:
+
+  popc_pops_chol:
+    description: >
+      Endosome-like anionic membrane. POPS (net charge -1) supplies the
+      negative surface charge that protonated ionizable lipids are thought to
+      engage. Cholesterol adds realistic packing/rigidity.
+    lipids_per_leaflet: 256
+    symmetric: true
+    # Mole ratio as specified (POPC:POPS:cholesterol = 50:30:20).
+    # CHARMM36 residue names: POPC, POPS, CHL1 (= cholesterol).
+    ratio: {POPC: 50, POPS: 30, CHL1: 20}
+    # 256 x 0.30 = 76.8 and 256 x 0.20 = 51.2 are not whole numbers, so the
+    # exact per-leaflet counts are a decision you must make. The code refuses
+    # to guess. One option that sums to 256 is POPC 128 / POPS 77 / CHL1 51
+    # (= 50.0 : 30.1 : 19.9).
+    counts_per_leaflet: null   # ASK: e.g. {POPC: 128, POPS: 77, CHL1: 51}
+    # Unzipped CHARMM-GUI download for this membrane (see MANUAL_STEPS.md).
+    charmm_gui_dir: inputs/charmm-gui/popc_pops_chol/gromacs
+
+  popc:
+    description: >
+      Zwitterionic control. No anionic lipid, so any electrostatic effect of
+      ionizable-lipid protonation should be much weaker here.
+    lipids_per_leaflet: 256
+    symmetric: true
+    ratio: {POPC: 100}
+    counts_per_leaflet: {POPC: 256}
+    charmm_gui_dir: inputs/charmm-gui/popc/gromacs

@@ -1,0 +1,8 @@
+"""Lets the scripts run straight from a clone (`python scripts/x.py`) even if
+the package wasn't pip-installed."""
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parents[1] / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))

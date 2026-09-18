@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lipidmd"
+version = "0.1.0"
+description = "All-atom MD pipeline: ionizable lipid / membrane interaction vs protonation state"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "pandas", "pyyaml"]
+
+[project.optional-dependencies]
+analysis = ["MDAnalysis>=2.7"]
+dev = ["pytest", "MDAnalysis>=2.7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

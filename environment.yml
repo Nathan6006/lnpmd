@@ -1,0 +1,19 @@
+# conda env create -f environment.yml && conda activate lipidmd
+# Works on the MacBook (analysis + optional local smoke runs) and on the cluster
+# (building systems; there, use the cluster's own GROMACS module instead).
+name: lipidmd
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - pyyaml
+  - mdanalysis>=2.7
+  - pytest
+  - networkx        # needed by the cgenff_charmm2gmx converter
+  - gromacs         # local CPU build, for building boxes / smoke runs on the Mac. Remove on the cluster.
+  - pip
+  - pip:
+      - -e .

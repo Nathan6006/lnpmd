@@ -1,0 +1,78 @@
+# =============================================================================
+# MD settings. mdp files (GROMACS run-parameter files) are GENERATED from this
+# file by `python scripts/make_mdp.py`; never edit files in mdp/ by hand.
+#
+# Settings that are NOT here on purpose: the nonbonded/cutoff scheme. CHARMM36
+# lipids were parameterized with one specific scheme (PME, 1.2 nm cutoff, LJ
+# force-switch from 1.0 nm, no dispersion correction). Using anything else
+# silently gives wrong area-per-lipid and order parameters, so it is hardcoded
+# in src/lipidmd/mdp.py and cannot be changed from config by accident.
+# =============================================================================
+
+temperature_K: 310          # 37 C
+pressure_bar: 1.0
+# "semiisotropic": the box's x/y (membrane plane) and z (normal) are scaled
+# independently, so the membrane can find its own area per lipid.
+pressure_coupling_type: semiisotropic
+salt_molar: 0.15            # NaCl, PLUS enough extra Na+/Cl- to make the net charge zero
+# 150 mM relative to WHAT volume? "water": n_pairs = 0.15 / 55.5 * n_waters
+# (the salt concentration the water actually sees). "box": gmx genion -conc,
+# which uses the whole box volume INCLUDING the membrane, giving more ions.
+salt_basis: null            # ASK: "water" or "box"
+timestep_ps: 0.002          # 2 fs, allowed because bonds to H are constrained (LINCS)
+
+# --- Temperature coupling (thermostat) -------------------------------------
+thermostat: null            # ASK: e.g. V-rescale (what CHARMM-GUI generates)
+tau_t_ps: null              # ASK: e.g. 1.0
+# Index groups that are thermostatted (and COM-motion-removed) separately.
+# Available groups written by the build: MEMB (membrane lipids),
+# AGG (ionizable lipids), MEMB_AGG (both), SOLV (water + ions).
+coupling_groups: null       # ASK: e.g. [MEMB_AGG, SOLV]
+
+# --- Pressure coupling (barostat) ------------------------------------------
+barostat_equilibration: null   # ASK: e.g. C-rescale
+barostat_production: null      # ASK: e.g. C-rescale or Parrinello-Rahman
+tau_p_ps: null                 # ASK: e.g. 5.0
+compressibility_per_bar: null  # ASK: e.g. 4.5e-5 (water), applied to xy and z
+
+# --- Output ----------------------------------------------------------------
+# How often coordinates are saved to the compressed trajectory (.xtc). This
+# sets the time resolution of every analysis (e.g. contact residence times).
+output:
+  xtc_interval_ps: null     # ASK
+  energy_interval_ps: null  # ASK
+  log_interval_ps: null     # ASK
+
+# --- Restraint macro names --------------------------------------------------
+# CHARMM-GUI's lipid .itp files contain restraint blocks switched on by
+# preprocessor defines. These are the names CHARMM-GUI uses; verify with
+#   grep -h "ifdef\|FC" inputs/charmm-gui/*/gromacs/toppar/POPC.itp
+# The build step checks they exist and stops if not.
+restraint_macros:
+  lipid_pos_switch: POSRES
+  lipid_pos_fc: POSRES_FC_LIPID
+  lipid_dih_switch: DIHRES
+  lipid_dih_fc: DIHRES_FC
+  aggregate_pos_switch: POSRES_AGG      # written by our build (not CHARMM-GUI)
+  aggregate_pos_fc: POSRES_FC_AGG
+
+# --- Energy minimization ----------------------------------------------------
+minimization:
+  # Restraint force constants (kJ/mol/nm^2 for positions, kJ/mol/rad^2 for
+  # dihedrals) during minimization. 0 = restraint off.
+  restraints: {lipid_pos: null, lipid_dih: null, aggregate_pos: null}   # ASK
+
+# --- Equilibration: staged, restraints decreasing ---------------------------
+# Each stage: ensemble nvt|npt, length_ps, restraint force constants.
+# The first stage generates velocities; every later stage continues.
+# Your CHARMM-GUI download contains its own recommended schedule in
+# gromacs/step6.*_equilibration.mdp -- read those `define =` and `nsteps`
+# lines when deciding (see DECISIONS.md, open questions).
+equilibration: null   # ASK. Shape:
+#  - {name: eq1, ensemble: nvt, length_ps: ..., restraints: {lipid_pos: ..., lipid_dih: ..., aggregate_pos: ...}}
+#  - {name: eq2, ensemble: npt, length_ps: ..., restraints: {...}}
+#  ...
+
+# --- Production -------------------------------------------------------------
+production:
+  length_ns: null   # ASK (e.g. 500). Checkpoint-restart chaining handles any length.

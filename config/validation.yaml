@@ -1,0 +1,49 @@
+# =============================================================================
+# Validation: pure POPC bilayer vs published CHARMM36 numbers.
+# `python scripts/validate.py ...` -- see README "Step 5".
+#
+# Production systems will NOT be submitted until this validation has passed
+# (scripts/run.py checks for validate/PASSED).
+#
+# Every reference value below is null ON PURPOSE. I did not want to put
+# numbers from memory into the one check everything else depends on. Fill
+# each value from the cited paper's table, together with the page/table you
+# took it from. Make sure the DEFINITION matches ours (e.g. our thickness is
+# phosphate-phosphate D_PP; papers often report D_HH from electron density).
+# =============================================================================
+
+membrane: popc            # key in membranes.yaml
+# Reference data for CHARMM36 POPC is usually reported at 303 K. Comparing a
+# 310 K simulation to 303 K references would be apples to oranges.
+temperature_K: null       # ASK: e.g. 303.15 to match the references
+production_ns: null       # ASK
+discard_ns: null          # ASK
+replicas: 1
+
+references:
+  area_per_lipid_nm2:
+    value: null           # TODO(you) from the paper
+    tolerance: null       # ASK: allowed |sim - ref|, same units
+    source: "Klauda J.B. et al., J. Phys. Chem. B 2010, 114, 7830-7843 (CHARMM36 lipid FF)"
+    where_in_paper: null  # e.g. "Table 2"
+  thickness_dpp_nm:
+    value: null
+    tolerance: null
+    source: "Klauda J.B. et al., J. Phys. Chem. B 2010, 114, 7830-7843"
+    where_in_paper: null
+  # Per-carbon S_CD. Give `values` as {carbon_name: S_CD}; S_CD is
+  # conventionally reported as -S_CD (positive numbers) -- store the SIGNED
+  # value (negative for most tail carbons) because that is what we compute.
+  scd_sn1:
+    values: null          # e.g. {C32: ..., C33: ...}
+    tolerance: null
+    source: "Klauda J.B. et al., J. Phys. Chem. B 2010, 114, 7830-7843"
+    where_in_paper: null
+  scd_sn2:
+    values: null
+    tolerance: null
+    source: "Klauda J.B. et al., J. Phys. Chem. B 2010, 114, 7830-7843"
+    where_in_paper: null
+
+# Optional experimental cross-check (not used for pass/fail):
+# Kucerka N., Nieh M.-P., Katsaras J., BBA Biomembranes 2011, 1808, 2761-2771.

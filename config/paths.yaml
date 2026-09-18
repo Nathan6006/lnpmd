@@ -1,0 +1,10 @@
+# Where manual-step outputs live, and local tools. Paths are relative to the
+# repository root.
+
+cgenff_dir: inputs/cgenff          # <LIPID>/<resname>.mol2 and .str from the CGenFF server
+params_dir: inputs/params          # <LIPID>/<resname>.itp and .prm (GROMACS format, converted)
+
+# The MacKerell-lab converter from CGenFF .str to GROMACS .itp/.prm, and the
+# CHARMM36 force field folder it needs. See MANUAL_STEPS.md step 3.
+cgenff_charmm2gmx: null            # TODO: e.g. tools/cgenff_charmm2gmx_py3_nx2.py
+charmm36_ff_dir: null              # TODO: e.g. tools/charmm36-jul2022.ff

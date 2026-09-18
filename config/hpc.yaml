@@ -1,0 +1,30 @@
+# =============================================================================
+# Cluster (SLURM) settings. None of these are confirmed yet -- fill in the
+# TODOs from your cluster's documentation or your sysadmin.
+# `--dry-run` works with the TODOs still in place (the job scripts will
+# contain TODO_... placeholders); real submission refuses until they are set.
+# =============================================================================
+
+account: null            # TODO: SLURM account/allocation (sbatch -A). null = omit the line.
+partition: null          # TODO: GPU partition name, e.g. "gpu"
+gpu_type: null           # TODO: e.g. "a100", "v100". null = request any GPU.
+gpus_per_job: 1
+cpus_per_task: null      # TODO: CPU cores that come with one GPU on your cluster, e.g. 8
+mem: null                # TODO: e.g. "16G". null = cluster default.
+walltime: null           # TODO: max wall clock per job, "HH:MM:SS", e.g. "24:00:00"
+
+# Shell lines run at the top of every job to make `gmx` available.
+module_lines: []         # TODO: e.g. ["module purge", "module load GROMACS/2024.1-CUDA"]
+
+gmx: gmx                 # executable name on the cluster ("gmx" or "gmx_mpi")
+
+# mdrun is told to stop cleanly this many minutes before the wall clock runs
+# out, write a checkpoint, and resubmit itself.
+safety_margin_min: 15
+
+# A run that has been resubmitted this many times without finishing is
+# marked FAILED (protects against infinite resubmission loops).
+max_segments: 50
+
+# Extra flags for gmx mdrun. -nb gpu etc. are usually auto-detected.
+mdrun_extra_flags: ""

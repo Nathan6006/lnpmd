@@ -1,0 +1,62 @@
+# =============================================================================
+# Analysis settings (run locally with MDAnalysis).
+# =============================================================================
+
+# Discard this much of the start of production before averaging in the
+# report. Time series CSVs always contain every frame; only report.py and the
+# validation comparison apply this cut.
+discard_ns: null          # ASK: decide after looking at convergence output
+
+stride: 1                 # analyze every Nth saved frame (1 = all). Speed knob only.
+
+membrane:
+  # Leaflet assignment and thickness use one "headgroup" atom per lipid.
+  headgroup_atoms: {POPC: P, POPS: P, CHL1: O3}
+  # Thickness = mean z(upper-leaflet P) - mean z(lower-leaflet P)  ("D_PP").
+  thickness_atom: P
+  # Area per lipid = box x * box y / (lipids per leaflet). Does cholesterol
+  # count as a lipid in that denominator? (Irrelevant for pure POPC.)
+  apl_counts_cholesterol: null   # ASK: true / false
+
+order_parameters:
+  # Tail carbons (CHARMM36 names) for which S_CD is computed. Hydrogens are
+  # found from bonds in the .tpr, so H names don't need listing.
+  # sn-1 = palmitoyl (C32..C316), sn-2 = oleoyl (C22..C218).
+  tails:
+    POPC:
+      sn1: [C32, C33, C34, C35, C36, C37, C38, C39, C310, C311, C312, C313, C314, C315, C316]
+      sn2: [C22, C23, C24, C25, C26, C27, C28, C29, C210, C211, C212, C213, C214, C215, C216, C217, C218]
+    POPS:
+      sn1: [C32, C33, C34, C35, C36, C37, C38, C39, C310, C311, C312, C313, C314, C315, C316]
+      sn2: [C22, C23, C24, C25, C26, C27, C28, C29, C210, C211, C212, C213, C214, C215, C216, C217, C218]
+
+contacts:
+  # Anionic POPS oxygens. Phosphate = the four O bonded to P; carboxylate =
+  # the serine COO-. Verify names in toppar/POPS.itp.
+  pops_oxygens: [O11, O12, O13, O14, O13A, O13B]
+  # Amine N atoms come from lipids.yaml -> protonatable_sites.
+  cutoff_nm: null              # ASK: N...O distance that counts as a contact
+  # A contact that breaks for <= this many frames and re-forms is treated as
+  # one continuous contact when computing residence times. 0 = strict.
+  gap_tolerance_frames: null   # ASK
+
+sasa:
+  probe_radius_nm: null        # ASK: e.g. 0.14 (water)
+  # Which aggregate atoms count as "hydrophobic". MDAnalysis selection syntax,
+  # applied within the ionizable lipids. One common definition is carbons plus
+  # hydrogens bonded to carbon:
+  #   "name C* or (name H* and bonded name C*)"
+  hydrophobic_selection: null  # ASK
+  # Should membrane atoms occlude (bury) aggregate surface? true = SASA in the
+  # real environment (insertion into the membrane lowers it). false = the
+  # aggregate's own exposed surface, as if the membrane were absent.
+  membrane_occludes: null      # ASK
+  n_sphere_points: 240         # numerical accuracy of the Shrake-Rupley algorithm
+
+water:
+  bin_width_nm: 0.1            # density-profile resolution
+  # Permeation: a water counts as crossing when it goes from one bulk region,
+  # through the core, into the opposite bulk region. Distances are |z| from
+  # the membrane centre.
+  core_half_width_nm: null     # ASK: |z| below this = inside the hydrophobic core
+  bulk_boundary_nm: null       # ASK: |z| above this = bulk water on that side

@@ -1,0 +1,83 @@
+# =============================================================================
+# Ionizable lipids studied in this project.
+#
+# One top-level entry per lipid. The key (ECO, MC3, SM102) is the short ID
+# used everywhere else: in systems.yaml, in directory names, in results.
+#
+# Every lipid needs ONE CGenFF parameterization PER CHARGE STATE, because a
+# protonated amine is a different chemical species (different atom types,
+# different partial charges on the neighbouring atoms, one extra hydrogen).
+# The files are found by convention:
+#     inputs/cgenff/<LIPID>/<resname>.mol2   (what you uploaded to CGenFF)
+#     inputs/cgenff/<LIPID>/<resname>.str    (what CGenFF gave back)
+# See docs/MANUAL_STEPS.md for how to make them.
+#
+# `null` means "not decided / not known yet". `python scripts/check_config.py`
+# lists every null so nothing is silently forgotten.
+# =============================================================================
+
+ECO:
+  display_name: "ECO"
+  iupac_name: "(1-aminoethyl)iminobis[N-(oleoylcysteinyl-1-aminoethyl)propionamide]"
+  smiles: null            # TODO(you): verify against PubChem / lab records. Deliberately NOT guessed.
+  formula_neutral: null   # TODO(you): e.g. "C..H..N..O..S.." for the NEUTRAL molecule. Checked against your .mol2.
+  mw_neutral: null        # TODO(you): g/mol, neutral molecule.
+  pka_apparent:
+    value: null           # TODO(you): lab measurement if available.
+    source: null
+    note: >
+      Two ionizable amines, so there are two microscopic pKa values; an
+      apparent (TNS-assay) pKa of a formulation is not the same thing.
+  # STRUCTURE FILE PLACEHOLDER: you supply the ECO structure. Put the neutral
+  # molecule at inputs/cgenff/ECO/ECO0.mol2 (see MANUAL_STEPS.md, step 2).
+  protonatable_sites:
+    # `atom`    = nitrogen atom name exactly as it appears in your .mol2
+    # `added_h` = name of the hydrogen that is ADDED when this N is protonated
+    #             (must match the name in the protonated .mol2 you upload)
+    - {id: amine_primary,  atom: null, added_h: null}   # TODO(you): atom names from your structure file
+    - {id: amine_tertiary, atom: null, added_h: null}   # TODO(you)
+  # When a molecule carries fewer protons than it has sites (ECO at +1), which
+  # site gets the proton first? List site ids in order.
+  protonation_order: null   # ASK: [amine_primary, amine_tertiary] or [amine_tertiary, amine_primary]
+  states:                   # net charge -> residue name used in the topology
+    0: {resname: ECO0}
+    1: {resname: ECO1}
+    2: {resname: ECO2}
+
+MC3:
+  display_name: "DLin-MC3-DMA"
+  iupac_name: "(6Z,9Z,28Z,31Z)-heptatriaconta-6,9,28,31-tetraen-19-yl 4-(dimethylamino)butanoate"
+  smiles: null            # TODO(you): verify against PubChem. Deliberately NOT guessed.
+  formula_neutral: "C43H79NO2"   # TODO(you): confirm against PubChem (I counted it from the IUPAC name).
+  mw_neutral: 642.1              # g/mol, neutral. TODO(you): confirm.
+  pka_apparent:
+    value: 6.44
+    source: "Jayaraman M. et al., Angew. Chem. Int. Ed. 2012, 51, 8529-8533"
+    note: >
+      Apparent pKa of the formulated LNP (TNS assay), not the pKa of an
+      isolated molecule. TODO(you): confirm value from the paper.
+  protonatable_sites:
+    - {id: amine_tertiary, atom: null, added_h: null}   # TODO(you): atom names from your structure file
+  protonation_order: [amine_tertiary]                   # only one site, nothing to decide
+  states:
+    0: {resname: MC3}
+    1: {resname: MC3H}
+
+SM102:
+  display_name: "SM-102"
+  iupac_name: "heptadecan-9-yl 8-[(2-hydroxyethyl)(6-oxo-6-undecoxyhexyl)amino]octanoate"
+  smiles: null            # TODO(you): verify against PubChem. Deliberately NOT guessed.
+  formula_neutral: "C44H87NO5"   # TODO(you): confirm against PubChem (counted from the IUPAC name).
+  mw_neutral: 710.2              # g/mol, neutral. TODO(you): confirm.
+  pka_apparent:
+    value: 6.68
+    source: "Hassett K.J. et al., Mol. Ther. Nucleic Acids 2019, 15, 1-11"
+    note: >
+      Apparent pKa of the formulated LNP (TNS assay). TODO(you): confirm the
+      value and that the lipid in that paper is SM-102.
+  protonatable_sites:
+    - {id: amine_tertiary, atom: null, added_h: null}   # TODO(you)
+  protonation_order: [amine_tertiary]
+  states:
+    0: {resname: SM12}
+    1: {resname: SM1H}
